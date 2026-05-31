@@ -1,49 +1,40 @@
 # AI Resume Analyzer
 
-A professional, deployment-ready resume scoring and ranking application built with Python, Flask, NLP, TF-IDF, Cosine Similarity, and SQLite.
+A professional, modular, deployment-ready resume scoring and ranking web application built with Python and Flask. It extracts text from PDF/DOCX resumes, identifies skills, computes similarity against job descriptions using TF-IDF + cosine similarity, ranks candidates, and provides an admin dashboard for analytics and exports.
 
-## Features
+**Key features**
+- Upload multiple resumes (PDF, DOCX) and analyze them against a job description
+- Skill extraction and missing-skill detection from a curated keyword list
+- TF-IDF + cosine-similarity resume-to-JD ranking with per-candidate score breakdown
+- Dashboard with statistics, top-skill chart, filtering, and history
+- Persisted data in SQLite (candidates, resumes, skills, history)
+- CSV export and PDF report generation per candidate
+- Modular codebase with Blueprints, config, and utility modules for easy extension
 
-- Upload multiple resumes in PDF or DOCX formats
-- Extract resume text and candidate details automatically
-- Advanced skill extraction and missing skill detection
-- Resume ranking with similarity score and candidate comparison
-- Professional dashboard with stats, charts, filtering, and history
-- SQLite database design with candidates, resumes, skills, and history
-- CSV export and PDF report generation
-- Responsive Bootstrap UI with dark mode support
-
-## Folder Structure
+## Project layout
 
 ```
 ResumeAnalzer/
-├── app.py
+├── app.py                  # Application factory and blueprint registration
+├── config.py               # App configuration and skill keywords
 ├── requirements.txt
 ├── README.md
-├── .gitignore
 ├── Procfile
-├── resumes/
-├── templates/
-│   ├── base.html
-│   ├── dashboard.html
-│   ├── history.html
-│   ├── index.html
-│   └── result.html
-├── static/
-│   └── style.css
-└── utils/
-    ├── __init__.py
-    ├── db.py
-    └── parser.py
+├── resumes/                # Uploaded resume files (writable)
+├── templates/              # Jinja2 templates (base, dashboard, index, result, login, view_resume)
+├── static/                 # CSS and static assets
+├── routes/                 # Flask Blueprints: auth.py, dashboard.py, resume.py
+└── utils/                  # Helpers: db.py, parser.py, analysis.py
 ```
 
-## Quick Start
+## Setup (local)
 
 1. Create and activate a virtual environment:
 
 ```bash
 python -m venv venv
-venv\Scripts\activate
+venv\Scripts\activate   # Windows
+source venv/bin/activate  # macOS / Linux
 ```
 
 2. Install dependencies:
@@ -52,56 +43,80 @@ venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-3. Run the application:
+3. Environment variables (recommended):
+
+- `SECRET_KEY` — Flask secret key (overrides `config.Config.SECRET_KEY`)
+- `ADMIN_USERNAME` — admin login username (default: `admin`)
+- `ADMIN_PASSWORD` — admin login password (default: `password`)
+
+You can set them in your shell or in a `.env` file (used by your deployment platform).
+
+4. Run the application:
 
 ```bash
 python app.py
 ```
 
-4. Open in browser:
+Open http://127.0.0.1:5000 and sign in using the admin credentials (default username/password: `admin`/`password`). Change defaults before deploying.
 
-```bash
-http://127.0.0.1:5000
-```
+## Routes / Usage
+
+- `GET /login` — Admin login page
+- `GET /` — Dashboard (requires login)
+- `GET /analyze`, `POST /analyze` — Upload resumes and analyze against a job description
+- `GET /history` — Analysis history
+- `GET /export/csv` — Export all resumes as CSV (blueprint: `resume.export_csv`)
+- `GET /export/pdf/<resume_id>` — Download PDF report for a resume (blueprint: `resume.export_pdf`)
+
+Note: templates and URL endpoints use blueprint-qualified names (for example, `resume.export_pdf`).
+
+## Database
+
+- The app uses SQLite. Database file is created automatically as `resumes.db` in the project root when the app starts.
+- Tables: `candidates`, `resumes`, `skills`, `history`.
+- `utils/db.py` contains helper functions and lightweight migration logic to handle older resume schemas.
+
+## Developer notes
+
+- Modular structure: the app uses an application factory (`create_app` in `app.py`) and registers Blueprints from `routes/` for separation of concerns.
+- `utils/parser.py` handles PDF/DOCX text extraction and basic contact/skill parsing.
+- `utils/analysis.py` provides score breakdown, feedback, ATS checks, and profile extraction helpers.
 
 ## Deployment
 
-- Use Render, Railway, or PythonAnywhere with this repository.
-- Ensure `requirements.txt` is installed.
-- For Render or Railway, use `python app.py` or a Procfile with `web: gunicorn app:app`.
-- Ensure the `resumes/` folder is writable.
+- For production, run behind a WSGI server like Gunicorn:
 
-## Key Concepts
+```bash
+pip install gunicorn
+gunicorn "app:app" --bind 0.0.0.0:8000
+```
 
-### NLP
-Natural Language Processing converts resume text and job descriptions into structured information used for matching, such as candidate details and technical skills.
+- Add a `Procfile` for platforms like Heroku/Render:
 
-### TF-IDF
-Term Frequency-Inverse Document Frequency scores how important a word is in a document relative to the corpus. It is used to convert text into numeric vectors for similarity.
+```
+web: gunicorn "app:app"
+```
 
-### Cosine Similarity
-Cosine similarity measures the angle between two vectorized documents. A higher score means the resume and job description are more similar.
+- Ensure `resumes/` is writable and `SECRET_KEY` + admin creds are set as environment variables.
 
-### Skill Extraction Logic
-The project uses keyword matching against a curated technical skill list to identify candidate strengths and missing requirements.
+## Testing the flow (quick)
 
-### Flask Routing
-Each URL route in `app.py` maps to a view function. For example, `/analyze` handles resume uploads and scoring, while `/` renders the dashboard.
+1. Start the server: `python app.py`
+2. Visit `/login` and authenticate using admin creds
+3. Go to `Analyze Resumes` and upload 1-3 PDF/DOCX resumes with a job description
+4. Review results, export CSV/PDF, and confirm entries appear on the Dashboard and History pages
 
-### SQLite Integration
-The app stores candidates, resume records, skills, and analysis history in a relational SQLite database for persistence and reporting.
+## Troubleshooting
 
-## Debugging Tips
+- If a PDF has no text, it's likely image-based. Convert it to a text-based PDF or use OCR before uploading.
+- Check the server console for parsing errors (PDF/DOCX read messages are logged during analysis).
+- If you see database schema issues, delete or back up `resumes.db` and restart — the app contains migration logic but a clean DB is simplest for local development.
 
-- Check the Flask console for debug output during upload and text extraction.
-- Verify the `resumes/` directory exists and is writable.
-- If a PDF has no extractable text, try converting it from a text-based version or use OCR.
-- Use the `history` page to confirm resumes are recorded in the database.
+## Security & next steps
 
-## Professional Improvements
+- Replace the default admin credentials and `SECRET_KEY` for production.
+- Consider adding HTTPS, session timeout, CSRF protection, and rate limits for file uploads.
+- Add automated tests for upload → analyze → export flows and CI that runs `python -m py_compile` on commit.
 
-- Modern card layout, sidebar navigation, and responsive dashboard
-- Filter and search candidates by name, skill, or score
-- Export CSV and generate PDF candidate reports
-- Clean database structure for interview-ready portfolio presentation
+If you want, I can add a `sample_resumes/` folder and an automated integration test that uploads one sample resume and validates the analysis flow.
 
