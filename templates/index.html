@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Analyze Resumes | ResumeAI{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-lg-8">
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <h2 class="card-title">Upload Resumes & Analyze</h2>
+        {% if error %}
+          <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
+        <form action="{{ url_for('resume.analyze') }}" method="post" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label class="form-label">Candidate Name (optional)</label>
+            <input class="form-control" type="text" name="candidate_name" placeholder="John Doe">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Upload Resumes (PDF or DOCX)</label>
+            <input class="form-control" type="file" name="resumes" multiple required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Job Description</label>
+            <textarea class="form-control" name="job_description" rows="8" required placeholder="Paste job description here..."></textarea>
+          </div>
+          <button class="btn btn-primary" type="submit">Analyze Resumes</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card shadow-sm mb-4 p-3">
+      <h5>Supported Skills</h5>
+      <ul class="list-group list-group-flush">
+        {% for skill in skills %}
+          <li class="list-group-item bg-transparent">{{ skill|title }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="card shadow-sm p-3">
+      <h5>Quick Tips</h5>
+      <p>Upload clean PDF or DOCX resumes. Add detailed JD text and compare multiple candidates at once.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

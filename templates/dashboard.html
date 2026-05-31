@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard | ResumeAI{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2>Professional Dashboard</h2>
+    <p class="text-muted">Overview of analyzed resumes, candidate ranking, and skill insights.</p>
+  </div>
+  <div>
+    <a href="{{ url_for('resume.analyze') }}" class="btn btn-primary">Analyze Resumes</a>
+    <a href="{{ url_for('dashboard.history') }}" class="btn btn-outline-secondary">View History</a>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="card stats-card shadow-sm p-3">
+      <h6>Total Resumes</h6>
+      <h3>{{ stats.total_resumes }}</h3>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card stats-card shadow-sm p-3">
+      <h6>Avg. Score</h6>
+      <h3>{{ stats.avg_score }}%</h3>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card stats-card shadow-sm p-3">
+      <h6>Candidates</h6>
+      <h3>{{ stats.total_candidates }}</h3>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card stats-card shadow-sm p-3">
+      <h6>Analysis Actions</h6>
+      <h3>{{ stats.total_actions }}</h3>
+    </div>
+  </div>
+</div>
+
+<div class="row gy-4">
+  <div class="col-xl-6">
+    <div class="card shadow-sm p-3">
+      <h5>Top Skill Matches</h5>
+      <canvas id="skillChart"></canvas>
+    </div>
+  </div>
+  <div class="col-xl-6">
+    <div class="card shadow-sm p-3">
+      <h5>Search & Filter</h5>
+      <form method="get" action="{{ url_for('dashboard.dashboard') }}">
+        <div class="mb-3">
+          <label class="form-label">Search candidate or file</label>
+          <input type="text" class="form-control" name="search" value="{{ search }}">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Minimum score</label>
+          <input type="number" class="form-control" name="min_score" value="{{ min_score }}" min="0" max="100">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Skill filter</label>
+          <select class="form-select" name="skill">
+            <option value="">All skills</option>
+            {% for s in skills %}
+              <option value="{{ s }}" {% if s == skill %}selected{% endif %}>{{ s|title }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button class="btn btn-primary" type="submit">Apply filters</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="card shadow-sm mt-4">
+  <div class="card-body">
+    <h5 class="mb-3">Top candidates</h5>
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>Candidate</th>
+            <th>Score</th>
+            <th>Skills</th>
+            <th>Missing</th>
+            <th>Recommendation</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in resumes %}
+            <tr>
+              <td>
+                <strong>{{ item.candidate_name }}</strong><br>
+                <small class="text-muted">{{ item.email or 'No email' }} | {{ item.phone or 'No phone' }}</small>
+              </td>
+              <td><span class="badge bg-success">{{ item.score }}%</span></td>
+              <td>{{ item.skills|join(', ') }}</td>
+              <td>{{ item.missing_skills|join(', ') }}</td>
+              <td>{{ item.recommendation }}</td>
+              <td>
+                <a class="btn btn-sm btn-outline-primary" href="{{ url_for('resume.export_pdf', resume_id=item.id) }}">PDF</a>
+                <form action="{{ url_for('resume.delete_resume', resume_id=item.id) }}" method="post" class="d-inline">
+                  <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                </form>
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="6" class="text-center">No resumes found. Upload candidates to see rankings.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  const skillLabels = {{ top_skill_labels | safe }};
+  const skillValues = {{ top_skill_values | safe }};
+  const ctx = document.getElementById('skillChart');
+  if (ctx) {
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: skillLabels,
+        datasets: [{
+          label: 'Skill frequency',
+          data: skillValues,
+          backgroundColor: 'rgba(13, 110, 253, 0.75)'
+        }]
+      },
+      options: { responsive: true }
+    });
+  }
+</script>
+{% endblock %}

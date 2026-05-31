@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Resume Details | ResumeAI{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2>Resume Details</h2>
+    <p class="text-muted">Candidate profile, extracted skills, and analysis summary.</p>
+  </div>
+  <div>
+    <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+  </div>
+</div>
+<div class="row">
+  <div class="col-lg-8">
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <h4>{{ record.candidate_name }}</h4>
+        <p class="text-muted mb-1">Email: {{ record.email or 'Not found' }}</p>
+        <p class="text-muted mb-3">Phone: {{ record.phone or 'Not found' }}</p>
+        <p><strong>Filename:</strong> {{ record.filename }}</p>
+        <p><strong>Score:</strong> {{ record.score }}%</p>
+        <p><strong>Recommendation:</strong> {{ record.recommendation }}</p>
+        <p><strong>Skills Found:</strong> {{ record.skills|join(', ') or 'None' }}</p>
+        <p><strong>Missing Skills:</strong> {{ record.missing_skills|join(', ') or 'None' }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

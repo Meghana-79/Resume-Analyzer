@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}Analysis History | ResumeAI{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2>Analysis History</h2>
+    <p class="text-muted">Track candidate analysis events and review historic actions.</p>
+  </div>
+  <div>
+    <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>When</th>
+            <th>Action</th>
+            <th>Candidate</th>
+            <th>File</th>
+            <th>Score</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in records %}
+            <tr>
+              <td>{{ r.created_at }}</td>
+              <td>{{ r.action|title }}</td>
+              <td>{{ r.candidate_name }}</td>
+              <td>{{ r.filename }}</td>
+              <td>{{ r.score }}%</td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="5" class="text-center">No history available yet.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

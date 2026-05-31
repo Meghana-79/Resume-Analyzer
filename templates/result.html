@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block title %}Resume Analysis Results | ResumeAI{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2>Analysis Results</h2>
+    <p class="text-muted">Ranked candidates and skill recommendations.</p>
+  </div>
+  <div>
+    <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-outline-secondary me-2">Dashboard</a>
+    <a href="{{ url_for('resume.export_csv') }}" class="btn btn-outline-primary">Export CSV</a>
+  </div>
+</div>
+
+{% if results %}
+  <div class="row">
+    <div class="col-xl-8">
+      {% for r in results %}
+        <div class="card shadow-sm mb-3">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div>
+                <h5>{{ r.candidate_name }}</h5>
+                <p class="text-muted mb-0">{{ r.email or 'No email' }} | {{ r.phone or 'No phone' }}</p>
+              </div>
+              <div class="text-end">
+                <span class="badge bg-success">{{ r.score }}%</span>
+              </div>
+            </div>
+            <p><strong>File:</strong> {{ r.filename }}</p>
+            <p><strong>Skills found:</strong> {% if r.skills %}{{ r.skills|join(', ') }}{% else %}None{% endif %}</p>
+            <p><strong>Missing skills:</strong> {% if r.missing_skills %}{{ r.missing_skills|join(', ') }}{% else %}None{% endif %}</p>
+            <p><strong>Recommendation:</strong> {{ r.recommendation }}</p>
+            <div class="progress mt-3">
+              <div class="progress-bar" role="progressbar" style="width: {{ r.score }}%;" aria-valuenow="{{ r.score }}" aria-valuemin="0" aria-valuemax="100">{{ r.score }}%</div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="col-xl-4">
+      <div class="card shadow-sm mb-3 p-3">
+        <h5>Score Distribution</h5>
+        <canvas id="scoreChart"></canvas>
+      </div>
+      <div class="card shadow-sm p-3">
+        <h5>Summary</h5>
+        <p><strong>Total Resumes:</strong> {{ results|length }}</p>
+        <p><strong>Top Candidate:</strong> {{ results[0].candidate_name }}</p>
+        <p><strong>Highest Score:</strong> {{ results[0].score }}%</p>
+      </div>
+    </div>
+  </div>
+{% else %}
+  <div class="alert alert-info">No analyzed resumes available. Upload a resume to see results.</div>
+{% endif %}
+
+<script>
+  const labels = {{ labels | safe }};
+  const scores = {{ scores | safe }};
+  const ctx = document.getElementById('scoreChart');
+  if (ctx) {
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Match Score (%)',
+          data: scores,
+          backgroundColor: 'rgba(13, 110, 253, 0.75)'
+        }]
+      },
+      options: { indexAxis: 'y', responsive: true }
+    });
+  }
+</script>
+{% endblock %}
