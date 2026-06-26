@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+{% block title %}AI Resume Analyzer | ResumeAI{% endblock %}
+{% block content %}
+<div class="container-fluid p-0">
+  <section class="hero py-5">
+    <div class="container">
+      <div class="row align-items-center g-4">
+        <div class="col-lg-7">
+          <h1 class="display-5 fw-bold mb-3">AI Resume Analyzer for Recruiters</h1>
+          <p class="lead text-muted mb-4">Upload multiple resumes, compare against a job description, and get an explainable match score with ATS-friendly insights—all using rule-based logic and TF‑IDF matching.</p>
+          <div class="d-flex flex-wrap gap-2">
+            <a href="{{ url_for('auth.login') }}" class="btn btn-gradient btn-lg">
+              <i class="bi bi-shield-lock me-2"></i> Admin Login
+            </a>
+            <a href="{{ url_for('resume.analyze') }}" class="btn btn-outline-gradient btn-lg">
+              <i class="bi bi-upload me-2"></i> Analyze Resumes
+            </a>
+          </div>
+          <div class="d-flex align-items-center gap-3 mt-4">
+            <div class="stat-pill">
+              <div class="stat-pill-title">Explainable Score</div>
+              <div class="stat-pill-value">+ / − breakdown</div>
+            </div>
+            <div class="stat-pill">
+              <div class="stat-pill-title">Fast Matching</div>
+              <div class="stat-pill-value">TF‑IDF cosine similarity</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-5">
+          <div class="hero-card card border-0">
+            <div class="card-body p-4">
+              <h5 class="mb-3"><i class="bi bi-stars text-primary me-2"></i> Recruiter-ready workflow</h5>
+              <ol class="timeline ps-3">
+                <li class="mb-2">Paste the job description</li>
+                <li class="mb-2">Upload PDF/DOCX resumes</li>
+                <li class="mb-2">Review ranked candidates & missing skills</li>
+                <li>Export CSV / PDF report</li>
+              </ol>
+              <div class="mt-3 d-flex gap-2">
+                <span class="badge badge-soft text-primary">Bootstrap 5 UI</span>
+                <span class="badge badge-soft text-success">SQLite</span>
+                <span class="badge badge-soft text-warning">Chart.js</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-5">
+    <div class="container">
+      <div class="section-title d-flex align-items-center gap-2 mb-3">
+        <span class="dot"></span>
+        <h2 class="h3 mb-0">Features</h2>
+      </div>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="feature-card card h-100 border-0">
+            <div class="card-body">
+              <div class="feature-icon"><i class="bi bi-file-earmark-text"></i></div>
+              <h5 class="mt-3">Resume Upload</h5>
+              <p class="text-muted mb-0">Support PDF & DOCX. Basic validation and size limits.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="feature-card card h-100 border-0">
+            <div class="card-body">
+              <div class="feature-icon"><i class="bi bi-speedometer2"></i></div>
+              <h5 class="mt-3">ATS Score</h5>
+              <p class="text-muted mb-0">Heuristic ATS compatibility checks with recommendations.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="feature-card card h-100 border-0">
+            <div class="card-body">
+              <div class="feature-icon"><i class="bi bi-lightbulb"></i></div>
+              <h5 class="mt-3">Missing Skills</h5>
+              <p class="text-muted mb-0">Detect gaps using keyword extraction from the job description.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="feature-card card h-100 border-0">
+            <div class="card-body">
+              <div class="feature-icon"><i class="bi bi-diagram-3"></i></div>
+              <h5 class="mt-3">Resume Ranking</h5>
+              <p class="text-muted mb-0">TF‑IDF + cosine similarity to rank multiple candidates.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="feature-card card h-100 border-0">
+            <div class="card-body">
+              <div class="feature-icon"><i class="bi bi-table"></i></div>
+              <h5 class="mt-3">Exports</h5>
+              <p class="text-muted mb-0">CSV export and PDF report generation per candidate.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="feature-card card h-100 border-0">
+            <div class="card-body">
+              <div class="feature-icon"><i class="bi bi-clock-history"></i></div>
+              <h5 class="mt-3">History</h5>
+              <p class="text-muted mb-0">Track analysis actions and review recent activity.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-5 bg-soft">
+    <div class="container">
+      <div class="row g-4 align-items-stretch">
+        <div class="col-lg-6">
+          <div class="card border-0 shadow-sm p-4 h-100">
+            <h3 class="h4 mb-3">How it works</h3>
+            <div class="d-flex flex-column gap-3">
+              <div class="how-item">
+                <div class="how-badge">1</div>
+                <div>
+                  <div class="fw-semibold">Define the role</div>
+                  <div class="text-muted small">Paste the job description and required keywords.</div>
+                </div>
+              </div>
+              <div class="how-item">
+                <div class="how-badge">2</div>
+                <div>
+                  <div class="fw-semibold">Analyze candidates</div>
+                  <div class="text-muted small">Upload resumes and compute match score + missing skills.</div>
+                </div>
+              </div>
+              <div class="how-item">
+                <div class="how-badge">3</div>
+                <div>
+                  <div class="fw-semibold">Review & export</div>
+                  <div class="text-muted small">Rank top candidates and export CSV/PDF for your team.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="card border-0 shadow-sm p-4 h-100">
+            <h3 class="h4 mb-3">Statistics</h3>
+            <div class="row g-3">
+              <div class="col-6">
+                <div class="big-number">Fast</div>
+                <div class="text-muted small">TF‑IDF matching (explainable + deterministic)</div>
+              </div>
+              <div class="col-6">
+                <div class="big-number">Simple</div>
+                <div class="text-muted small">No external AI APIs—easy to explain in interviews</div>
+              </div>
+              <div class="col-6">
+                <div class="big-number">Safe</div>
+                <div class="text-muted small">File type validation + capped upload size</div>
+              </div>
+              <div class="col-6">
+                <div class="big-number">Useful</div>
+                <div class="text-muted small">ATS heuristics and clear recommendations</div>
+              </div>
+            </div>
+            <div class="mt-3 alert alert-info mb-0">
+              <i class="bi bi-info-circle me-2"></i>
+              Sign in as admin to start analyzing resumes.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-5">
+    <div class="container">
+      <div class="section-title d-flex align-items-center gap-2 mb-3">
+        <span class="dot"></span>
+        <h2 class="h3 mb-0">FAQ</h2>
+      </div>
+      <div class="accordion" id="faq">
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="faq1">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1" aria-expanded="true" aria-controls="collapse1">
+              Does it use LLMs or cloud APIs?
+            </button>
+          </h2>
+          <div id="collapse1" class="accordion-collapse collapse show" aria-labelledby="faq1" data-bs-parent="#faq">
+            <div class="accordion-body text-muted">
+              No. Matching is done using TF‑IDF + cosine similarity, and recommendations are rule-based and keyword-based.
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="faq2">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2" aria-expanded="false" aria-controls="collapse2">
+              Is the score explainable?
+            </button>
+          </h2>
+          <div id="collapse2" class="accordion-collapse collapse" aria-labelledby="faq2" data-bs-parent="#faq">
+            <div class="accordion-body text-muted">
+              The system is designed to show keyword match coverage and ATS heuristics. (Next phase adds a full +/− breakdown.)
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="faq3">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3" aria-expanded="false" aria-controls="collapse3">
+              What file types are supported?
+            </button>
+          </h2>
+          <div id="collapse3" class="accordion-collapse collapse" aria-labelledby="faq3" data-bs-parent="#faq">
+            <div class="accordion-body text-muted">
+              PDF and DOCX resumes. Upload size is limited for safety.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}

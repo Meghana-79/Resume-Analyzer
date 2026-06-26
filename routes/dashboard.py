@@ -6,7 +6,7 @@ import json
 dashboard_bp = Blueprint('dashboard', __name__, template_folder='../templates')
 
 
-@dashboard_bp.route('/')
+@dashboard_bp.route('/dashboard')
 @login_required
 def dashboard():
     search = request.args.get('search', '').strip()
